@@ -1,13 +1,9 @@
 'use strict';
 var async = require('async');
 var mongoose = require('mongoose');
-var JiraAPI = require('../services/JiraAPI');
 
-var JiraSQLConverter = require('../services/JiraToSQLConverter');
 var logger = require('../util/logger');
 var MyVars = require('../MyVars');
-require('../models/MongoModels/Changelog');
-var ChangelogModel = mongoose.model('Changelog');
 
 var SQLLoader = function () {
     this.jiraSQLConverter = new JiraSQLConverter();
@@ -143,41 +139,6 @@ SQLLoader.prototype = {
             }
         );
     },
-    loadChangeLogsToSQL1: function (obj, MySQLModel, items, cb) {
-        var self = this;
-        var count = 0;
-        var len = items.length;
-
-        async.eachSeries(items,
-            function (item, callback) {
-                count++;
-                logger.debug("Updating " + MySQLModel.strTable + ": " + count + " of " + len);
-                self.loadItemToSQL1(obj, MySQLModel, item, 
-                function (err, result) {
-                    console.log("Error: " + err);
-                    console.log("Result: " + result);
-                    if (err) {
-                         callback(err);
-                    }else{
-                        callback();
-                     //   setTimeout(callback, MyVars.sqlQueryTimeout);
-                    }
-                });
-            },
-            function (err) {
-                if (err) {
-                    console.log("Here 3");
-                    console.trace();
-                    logger.error(MySQLModel.strTable + " - Error in loadItemsToSQL: " + err);
-                    return cb(err);
-                } else {
-                    console.log("Here 4");
-                    console.trace();
-                    return cb(null, "done");
-                }
-            }
-        );
-    },
     loadItemToSQL1: function (obj, MySQLModel, item, cb) {
         var self = this;
         item = self.mergeObjects(item, obj);
@@ -240,24 +201,6 @@ SQLLoader.prototype = {
                     return cb(null, "finished");
                 }
             });
-    },
-    loadChangelogItemToMongo1: function (obj, MongoModel, item, cb) {
-        var self = this;
-        item = self.mergeObjects(item, obj);
-        //console.dir(item);
-        MongoModel.update({
-            issueId: item.issueId,
-            id: item.id
-        }, item, {
-                upsert: true
-            }, function (err, numRows) {
-                if (err) {
-                    logger.error(err);
-                    return cb(err);
-                } else {
-                    return cb(null, "finished");
-                }
-            });
     },    
     loadItemsToMongo2: function (obj, MongoModel, items, cb) {
         var self = this;
@@ -285,20 +228,6 @@ SQLLoader.prototype = {
                 }
             }
         );
-    },    
-    loadItemToMongo2: function (obj, MongoModel, item, cb) {
-        var self = this;
-        item = self.mergeObjects(obj, item);
-        //    console.dir(item);
-        var Item = new ChangelogModel(item);
-        item.save(function (err, numRows) {
-                if (err) {
-                    logger.error(err);
-                    return cb(err);
-                } else {
-                    return cb(null, "finished");
-                }
-            });
     },    
 }
 
