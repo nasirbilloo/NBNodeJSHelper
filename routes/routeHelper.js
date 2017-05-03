@@ -1,19 +1,6 @@
 'use strict';
-var express = require('express');
-var router = express.Router();
-var bodyParser = require('body-parser');
 
-var jsonParser = bodyParser.json();
-var urlencodedParser = bodyParser.urlencoded({
-    extended: false
-});
-var MyVars = require('../MyVars');
-
-var SQLConnection = require('../db/SQLServerConnection');
-var SQLQuery = require('../db/SQLServerQuery');
-
-var logger = require('../util/logger');
-var jwt = require('jwt-simple');
+var DBConnectionFactory = require('../db/DBConnectionFactory');
 
 var RouteHelper = function () {
 };
@@ -36,28 +23,7 @@ RouteHelper.prototype = {
         return res.status(200).send(result);
     },
 
-    isAuthenticated: function (req, res) {
-        if (!req.headers.authorization) {
-            return false;
-        }
-        var token = req.headers.authorization.split(' ')[1];
-        var payload = jwt.decode(token, MyVars.JWTSecret);
 
-        if (!payload) {
-            return false;
-        }
-
-        var email = payload.sub;
-        var exp = payload.exp;
-        if (!email) {
-            return false;
-        }
-        var now = new Date();
-        if (exp < now.getTime()) {
-            return false;
-        }
-        return true;
-    },
     getDBDateTimeString: function (dt) {
         return dt.getFullYear() + "/" + (dt.getMonth() + 1) + "/" + dt.getDate() + " " + dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
     },
@@ -66,18 +32,14 @@ RouteHelper.prototype = {
     },
     processQuery: function (strSQL, req, res) {
         var self = this;
-        var sqlConn = new SQLConnection();
-        //var sqlConn = SQLConnection;            
 
-        sqlConn.getConnection(function (err, dbConn) {
+        DBConnectionFactory.getSQLQuery(function (err, issueQuery) {
             if (err) {
                 return self.routeError(err, res);
             }
-            var issueQuery = new SQLQuery(dbConn);
             issueQuery.query(strSQL, function (err, results) {
                 dbConn.release();
                 if (err) {
-                    logger.error(err);
                     return self.routeError(err, res);
                 } else {
                     return self.routeSuccess(results, res);
@@ -87,21 +49,16 @@ RouteHelper.prototype = {
     },
     getQuery: function (strSQL, cb) {
         var self = this;
-        var sqlConn = new SQLConnection();
 
-        sqlConn.getConnection(function (err, dbConn) {
+        DBConnectionFactory.getSQLQuery(function (err, issueQuery) {
             if (err) {
                 return cb(err);
             }
-            var issueQuery = new SQLQuery(dbConn);
 
             issueQuery.query(strSQL, function (err, results) {
-                dbConn.release();
                 if (err) {
-                    logger.error(err);
                     return cb(err);
                 } else {
-                    logger.log(results);
                     return cb(null, results);
                 }
             });
@@ -211,5 +168,5 @@ module.exports.getStringVar = getStringVar;
 
 //module.exports.getAuthorizedUser = getAuthorizedUser;
 */
-
-module.exports = RouteHelper;
+routeHelper = new RouteHelper();
+module.exports = routeHelper;

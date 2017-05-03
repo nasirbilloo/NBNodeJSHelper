@@ -1,9 +1,7 @@
 'use strict';
 var sql = require('mssql');
-var logger = require('../util/logger');
 
 var SQLServerTable = function(connection, strTable){
-//    logger.log("In Projects constructor");
     this.table = strTable;
     this.connection = connection;
 };
@@ -242,10 +240,9 @@ SQLServerTable.prototype = {
     },
     runQuery: function(sqlstring,cb){
         var request = new sql.Request(this.connection);
-        logger.info(sqlstring);
         request.query(sqlstring, function(err, recordset){
             if (err){
-                logger.error(err);
+                //logger.error(err);
             }
             cb(err, recordset);
         });
@@ -253,12 +250,10 @@ SQLServerTable.prototype = {
     runCUDQuery: function(sqlstring,cb){
         var retval = '';
         var request = new sql.Request(this.connection);
-        logger.info(sqlstring);
         request.query(sqlstring, function(err, recordset){
             if (err){
-                logger.error('Error: ' + err);
+                //logger.error('Error: ' + err);
             } else {
-                //logger.info("Row Count: " + recordset);
                 cb(err, recordset);
             }
         });

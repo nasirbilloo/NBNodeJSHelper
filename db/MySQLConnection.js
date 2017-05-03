@@ -1,17 +1,15 @@
 'use strict'
 var mysql = require('mysql');
-var MyVars = require('../MyVars');
-var logger = require('../util/logger');
 
-var MySQLConnection = function (poolSize, debug) {
+var MySQLConnection = function (connObj, poolSize, debug) {
     if (!poolSize || poolSize == NaN) poolSize = 100;
     if (poolSize < 0) poolSize = 100;
     this.pool = mysql.createPool({
         connectionLimit: poolSize,
-        host: MyVars.DBHOST,
-        user: MyVars.DBUSER,
-        password: MyVars.DBPASS,
-        database: MyVars.DBDB
+        host: connObj.DBHOST,
+        user: connObj.DBUSER,
+        password: connObj.DBPASS,
+        database: connObj.DBDB
     });
     debug ? this.debug = debug : this.debug = false;
 }
@@ -28,5 +26,4 @@ MySQLConnection.prototype = {
     },
 }
 
-var mySQLConnection = new MySQLConnection(100);
 module.exports = mySQLConnection;

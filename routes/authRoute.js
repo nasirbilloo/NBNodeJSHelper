@@ -17,24 +17,6 @@ var SQLQuery = require('../db/MySQLQuery');
 
 var logger = require('../util/logger');
 
-function sendAuthError(res, message) {
-    res.status(403).send({
-        message: message
-    });
-}
-
-function sendAuthSuccess(res, message) {
-    res.status(200).send({
-        message: message
-    });
-}
-exports.logout = function (req, res) {
-    if (!req.headers.authorization) {
-        return sendAuthError(res, 'Invalid Logout Attempt');
-    }
-
-    return sendAuthSuccess(res, 'Logout Successful');
-};
 
 var getUser = function (username, cb) {
     var strSQL = "select * from people where id='" + username + "'";
@@ -65,13 +47,6 @@ exports.login = function (req, res) {
     return authenticateUser(auth, res);
 };
 
-exports.isValidUser = function (req, res) {
-    if (routeHelper.isAuthenticated(req, res)) {
-        routeHelper.routeSuccess({ isValid: true }, res);
-    } else {
-        routeHelper.routeSuccess({ isValid: false }, res);
-    }
-}
 exports.permissions = function (req, res) {
     var fxn = req.query.fxn;
     if (!fxn) fxn = "";

@@ -1,6 +1,5 @@
     'use strict';
 var sql = require('mysql');
-var logger = require('../util/logger');
 
 var MySQLTable = function(connection, strTable){
     this.table = strTable;
@@ -246,7 +245,6 @@ MySQLTable.prototype = {
         self.runQuery(strSQL, cb);
     },
     runQuery: function(sqlstring,cb){
-        logger.info(sqlstring);
         if (!this.connection){
             if (!cb) {
                 return ("Invalid Connection");
@@ -254,18 +252,14 @@ MySQLTable.prototype = {
                 return cb("invalid connection Error");
             }
         }
-        //logger.log(sqlstring);
         this.connection.query(sqlstring, function(err, rows, fields){
             if (err){
-                logger.error(err);
                 return cb(err, null);
             }
-            //logger.log("Outputting Recordset");
             return cb(null, rows);
         });
     },
     runCUDQuery: function(sqlstring,cb){
-        logger.info(sqlstring);
         if (!this.connection){
             if (!cb) {
                 return ("Invalid Connection");
@@ -278,68 +272,11 @@ MySQLTable.prototype = {
         //var request = new sql.Request(this.connection);
         this.connection.query(sqlstring, function(err, rows, fields){
             if (err){
-                logger.error('Error: ' + err);
                 return cb(err, null);
             } 
             return cb(null, rows);
         });
     }
-    /*
-    runQuery: function(sqlstring,cb){
-        var sqlconnection = new Connection(config);
-        //var cb = req.query['callback'];
-        var retval = '';
-        sqlconnection.on('connect', function(err){
-            var request;
-            request = new Request(sqlstring, function(err, rowCount, rows) {
-                if (err){
-                    logger.log('Error');
-                    sqlconnection.close();
-                } else {
-                    var rowarray = [];
-                    var x=0;
-                    rows.forEach(function(columns){
-                        var rowdata = new Object();
-                        logger.log(x++);
-                        columns.forEach(function(column) {
-                            rowdata[column.metadata.colName] = column.value;
-                        });
-                        rowarray.push(rowdata);
-                    })
-                    sqlconnection.close();
-                    retval = JSON.stringify(rowarray);
-                    logger.log(retval);
-                    if (cb){
-                        retval = cb + '(' + retval + ');'
-                    }
-                    //return retval;
-                }
-            });
-            sqlconnection.execSql(request);
-        });
-    },
-    runCUDQuery: function(sqlstring,cb){
-        var sqlconnection = new Connection(config);
-        //var cb = req.query['callback'];
-        var retval = '';
-        sqlconnection.on('connect', function(err){
-            var request;
-            request = new Request(sqlstring, function(err, rowCount) {
-                if (err){
-                    logger.log('Error');
-                    sqlconnection.close();
-                } else {
-                    logger.log("Row Count: " + rowcount);
-                    if (cb){
-                        retval = cb + '(' + rowCount + ');'
-                    }
-                    //return retval;
-                }
-            });
-            sqlconnection.execSql(request);
-        });
-    }*/
-
 };
 
 module.exports = MySQLTable;

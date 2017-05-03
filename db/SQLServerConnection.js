@@ -1,15 +1,14 @@
 'use strict';
 var sql = require('mssql');
-var MyVars = require('../MyVars');
-var logger = require('../util/logger');
 
-var SQLConnection = function () {
-    this.user = MyVars.DBUSER;
-    this.password = MyVars.DBPASS;
-    this.host = MyVars.DBHOST;
-    this.instance = MyVars.DBINSTANCE;
+var SQLConnection = function (ConnObj) {
+    this.user = ConnObj.DBUSER;
+    this.password = ConnObj.DBPASS;
+    this.host = ConnObj.DBHOST;
+    this.instance = ConnObj.DBINSTANCE;
+    this.connectionRetry = ConnObj.CONNECTION_RETRY;
     //this.port = strPort;
-    this.db = MyVars.DBDB;
+    this.db = ConnObj.DBDB;
     this.connection = null;
     this.connected = false;
     this.dbConfig = {
@@ -36,12 +35,7 @@ SQLConnection.prototype = {
                         var n = String(err).indexOf("Error Establishing Connection");
                         var m = String(err).indexOf("Failed to connect");
                         var o =  String(err).indexOf("Connection Lost");
-                        logger.info("indexof m: " + m);
-                        logger.info("indexof n: " + n);                        
-                        logger.info("indexof n: " + o);                        
                         if ((n > -1 || m > -1 || o > -1) && count < 5){
-                            logger.info(err);
-                            logger.info("retrying connection: in " + MyVars.connectionRetry + " seconds");
                             count++;
                             setTimeout(function(){
                                 self.connection = new sql.Connection(config, function(err){
@@ -51,9 +45,8 @@ SQLConnection.prototype = {
                                         return cb(null, self);
                                     }
                                 });
-                            }, MyVars.connectionRetry * 1000);
+                            }, this.connectionRetry * 1000);
                         }else{
-                            logger.error("SQLServerConnection.connect: " + err);
                             return cb(err);
                         }
                         
@@ -112,21 +105,14 @@ SQLConnection.prototype = {
                 }catch(err){
                     var n = string(err).indexOf("Error Establishing Connection");
                     var m = string(err).indexOf("Connection Lost");                    
-                    console.log("indexof: " + n);
-                    console.log("indexof: " + m);                    
                     if (n > -1 || m > -1){
                         setTimeout(self.query(strSQL, cb), 1500);
                     }else{
-                        logger.error("SQLServerConnection.query: " + err);
                         return cb(err);
                     }
                 }
             };
         }
     }
-    //var sqlConnection = new SQLConnection();
-    //sqlConnection.connect(function(err){
-    //    logger.error(err);
-    //});
-//module.exports = sqlConnection;
+
 module.exports = SQLConnection;

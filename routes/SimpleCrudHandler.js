@@ -9,14 +9,12 @@ var urlencodedParser = bodyParser.urlencoded({
     extended: false
 });
 
-var RouteHelper = require('./routeHelper');
-var routeHelper = new RouteHelper;
-var routeError = routeHelper.routeError;
-var routeSuccess = routeHelper.routeSuccess;
-//var getAuthorizedUser = routeHelper.getAuthorizedUser;
+var RouteFactory = require('./RouteFactory');
+var routeHelper = RouteFactory.RouteHelper;
 
 var SimpleCrudHandler = function(model) {
     this.RouteModel = model;
+    this.routeHelper = RouteFactory.routeHelper;
 };
 
 
@@ -25,9 +23,10 @@ SimpleCrudHandler.prototype = {
         var self = this;
         self.RouteModel.getAll(function(err, results) {
             if (err) {
-                return routeError(err, response);
+                console.log(err);
+                return self.routeHelper.routeError(err, response);
             } else {
-                return routeSuccess(results, response);
+                return self.routeHelper.routeSuccess(results, response);
             }
         });
     },
@@ -36,9 +35,10 @@ SimpleCrudHandler.prototype = {
         var itemID = request.params[itemIDName];
         self.RouteModel.getWithID(itemID, itemIDName, function(err, results) {
             if (err) {
-                return routeError(err, response);
+                console.log(err);
+                return self.routeHelper.routeError(err, response);
             } else {
-                return routeSuccess(results, response);
+                return self.routeHelper.routeSuccess(results, response);
             }
         });
     },
@@ -47,9 +47,10 @@ SimpleCrudHandler.prototype = {
         var data = request.body;
         self.RouteModel.insertOrUpdate(data, function(err, results) {
             if (err) {
-                return routeError("Error in insert statement, unable to insert", response);
+                console.log(err);
+                return self.routeHelper.routeError("Error in insert statement, unable to insert", response);
             } else {
-                return routeSuccess(results, response);
+                return self.routeHelper.routeSuccess(results, response);
             }
         });
     },
@@ -59,9 +60,9 @@ SimpleCrudHandler.prototype = {
         self.RouteModel.removeSimple(data, function(err, results) {
             if (err) {
                 console.error(err);
-                return routeError(err, response);
+                return self.routeHelper.routeError(err, response);
             } else {
-                return routeSuccess(results, response);
+                return self.routeHelper.routeSuccess(results, response);
             }
         });
     }

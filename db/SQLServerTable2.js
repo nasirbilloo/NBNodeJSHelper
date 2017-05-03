@@ -1,17 +1,18 @@
 'use strict';
 
 var sql = require('mssql');
-var logger = require('../util/logger');
 
-var SQLServerTable2 = function (strTable, idFields) {
+var SQLServerTable2 = function (strTable, idFields, dbConn) {
     this.table = strTable;
     this.userID = 'SYS';
-    this.debug = false;
     idFields ? this.idFields = idFields : this.idFields = ['id']; //Array
-
+    this.dbConn = dbConn;
 };
 
 SQLServerTable2.prototype = {
+    setConnection: function(conn){
+        this.dbConn = conn;
+    },
     getIdWhereClause: function (data) {
         var ret = "";
         var count = 0;
@@ -22,31 +23,17 @@ SQLServerTable2.prototype = {
         });
         return ret;
     },
-    findAll: function (connection, cb) {
+    findAll: function (cb) {
         var self = this;
-        if (!connection || !connection.connection) {
-            if (!cb) {
-                return ("Invalid Connection");
-            } else {
-                return cb("invalid Connection Error");
-            }
-        }
         var strSQL = "select * from " + self.table;
-        self.runQuery(connection, strSQL, cb);
+        self.runQuery(strSQL, cb);
     },
-    find: function (connection, object, cb) {
+    find: function (object, cb) {
         return this.findFew(object, cb);
     },
-    findFew: function (connection, object, cb) {
+    findFew: function (object, cb) {
         var self = this;
 
-        if (!connection || !connection.connection) {
-            if (!cb) {
-                return ("Invalid Connection");
-            } else {
-                return cb("invalid Connection Error");
-            }
-        }
 
         var strSQL = "select * from " + self.table;
         var x = 0;
@@ -58,40 +45,24 @@ SQLServerTable2.prototype = {
             }
             strSQL += key + "  " + object[key];
         }
-        self.runQuery(connection, strSQL, cb);
+        self.runQuery(strSQL, cb);
     },
-    findOne: function (connection, obj, cb) {
+    findOne: function (obj, cb) {
         var self = this;
-
-        if (!connection || !connection.connection) {
-            if (!cb) {
-                return ("Invalid Connection");
-            } else {
-                return cb("Invalid Connection Error");
-            }
-        }
 
         self.isNullIdField(obj, function (err, isNull) {
             if (err) {
                 return cb("Primary Key can't be null");
             } else {
                 var strSQL = "select * from " + self.table + " where " + self.getIdWhereClause(obj);
-                self.runQuery(connection, strSQL, cb);
+                self.runQuery(strSQL, cb);
 
             }
         });
 
     },
-    insert: function (connection, object, cb) {
+    insert: function (object, cb) {
         var self = this;
-
-        if (!connection || !connection.connection) {
-            if (!cb) {
-                return ("Invalid Connection");
-            } else {
-                return cb("Invalid Connection Error");
-            }
-        }
 
         var strSQL = "insert into " + self.table + " (";
         var x = 0;
@@ -123,7 +94,7 @@ SQLServerTable2.prototype = {
             }
         }
         strSQL += ")";
-        self.runCUDQuery(connection, strSQL, cb);
+        self.runCUDQuery(strSQL, cb);
     },
     isIdField: function (key) {
 
@@ -142,16 +113,8 @@ SQLServerTable2.prototype = {
         }
         return obj3;
     },
-    update: function (connection, object, cb) {
+    update: function (object, cb) {
         var self = this;
-
-        if (!connection || !connection.connection) {
-            if (!cb) {
-                return ("Invalid Connection");
-            } else {
-                return cb("Invalid Connection Error");
-            }
-        }
 
         var strSQL = "update " + self.table + " set ";
         var x = 0;
@@ -170,19 +133,10 @@ SQLServerTable2.prototype = {
             }
         }
         strSQL += " where " + self.getIdWhereClause(object);
-        self.runCUDQuery(connection, strSQL, cb);
+        self.runCUDQuery(strSQL, cb);
     },
-    updateWithCompare: function (connection, originalObj, newObj, cb) {
+    updateWithCompare: function (originalObj, newObj, cb) {
         var self = this;
-        if (self.debug) logger.debug("updateWithCompare");
-
-        if (!connection || !connection.connection) {
-            if (!cb) {
-                return ("Invalid Connection");
-            } else {
-                return cb("Invalid Connection Error");
-            }
-        }
 
         var x = 0;
         var strSQL = "update " + self.table + " set ";
@@ -233,36 +187,20 @@ SQLServerTable2.prototype = {
         if (x < 1) { //Nothing to update, bailing
             return cb(null, originalObj);
         } else {
-            self.runCUDQuery(connection, strSQL, cb);
+            self.runCUDQuery(strSQL, cb);
         }
     },
-    remove: function (connection, object, cb) {
+    remove: function (object, cb) {
         var self = this;
-
-        if (!connection || !connection.connection) {
-            if (!cb) {
-                return ("Invalid Connection");
-            } else {
-                return cb("Invalid Connection Error");
-            }
-        }
 
         var strSQL = "delete from " + self.table;
         var x = 0;
         strSQL += " where ";
         strSQL += self.getIdWhereClause(object)
-        self.runCUDQuery(connection, strSQL, cb);
+        self.runCUDQuery(strSQL, cb);
     },
-    count: function (connection, object, cb) {
+    count: function (object, cb) {
         var self = this;
-
-        if (!connection || !connection.connection) {
-            if (!cb) {
-                return ("Invalid Connection");
-            } else {
-                return cb("Invalid Connection Error");
-            }
-        }
 
         var strSQL = "select count(*) nasir from " + self.table;
         var x = 0;
@@ -274,7 +212,7 @@ SQLServerTable2.prototype = {
             }
             strSQL += key + " " + object[key] + " ";
         }
-        self.runQuery(connection, strSQL, cb);
+        self.runQuery(strSQL, cb);
     },
     getIdObject: function (obj) {
         var retObj = {};
@@ -310,22 +248,15 @@ SQLServerTable2.prototype = {
             }
         });
     },
-    exists: function (connection, object, cb) {
+    exists: function (object, cb) {
         var self = this;
 
-        if (!connection || !connection.connection) {
-            if (!cb) {
-                return ("Invalid Connection");
-            } else {
-                return cb("Invalid Connection Error");
-            }
-        }
         if (!object) {
             return cb(null, false);
         }
         self.isNullIdField(object, function (err, isNull) {
             if (!isNull) {
-                self.count(connection, self.getIdObjectWithOperators(object), function (err, result) {
+                self.count(self.getIdObjectWithOperators(object), function (err, result) {
                     if (err) {
                         return cb(err, null);
                     } else {
@@ -341,55 +272,30 @@ SQLServerTable2.prototype = {
             }
         });
     },
-    getName: function (connection, obj, cb) {
+    getName: function (obj, cb) {
         var self = this;
-
-        if (!connection || !connection.connection) {
-            if (!cb) {
-                return ("Invalid Connection");
-            } else {
-                return cb("invalid connection Error");
-            }
-        }
 
         var strSQL = "select name from " + self.table + " where " + self.getIdWhereClause(obj)
-        self.runQuery(connection, strSQL, cb);
+        self.runQuery(strSQL, cb);
     },
-    runQuery: function (connection, sqlstring, cb) {
+    runQuery: function (sqlstring, cb) {
         var self = this;
 
-        if (self.debug) logger.info(sqlstring);
-        if (!connection || !connection.connection) {
+        if (!self.dbConn || !self.dbConn.connection) {
             if (!cb) {
                 return ("Invalid Connection");
             } else {
                 return cb("invalid connection Error");
             }
         }
-        connection.query(sqlstring, function (err, recordset) {
+        self.dbConn.query(sqlstring, function (err, recordset) {
             if (err) {
                 var n = String(err).indexOf("Error Establishing Connection");
                 var m = String(err).indexOf("Failed to connect");
                 var o = String(err).indexOf("Connection lost - read ECONNRESET");
-                logger.info("indexof m: " + m);
-                logger.info("indexof n: " + n);
-                logger.info("indexof n: " + o);
                 if (n > -1 || m > -1 || o > -1) {
-                    logger.error("Connection Error, retrying in 1.5 seconds");
-                    setTimeout(function(){self.runQuery(connection, sqlstring, cb)}, 2000);
-                    /*
-                    setTimeout(function(){connection.query(sqlstring, function (err, recordset){
-                        if (err){
-                            logger.error("SQLServerTable2.query" + err);
-                            return cb(err);
-                        }else{
-                            return cb(null, recordset);
-                        }
-                    });}, 2000);
-                    */
+                    setTimeout(function(){self.runQuery(self.dbConn, sqlstring, cb)}, 2000);
                 } else {
-                    logger.error(sqlstring);                    
-                    logger.error("SQLServerTable2.query" + err);
                     return cb(err);
                 }
                 //return cb(err + "\n SQL Statement: " + sqlstring);
@@ -398,11 +304,10 @@ SQLServerTable2.prototype = {
             }
         });
     },
-    runCUDQuery: function (connection, sqlstring, cb) {
+    runCUDQuery: function (sqlstring, cb) {
         var self = this;
 
-        if (self.debug) logger.info(sqlstring);
-        if (!connection && connection.connection) {
+        if (!self.dbConn && self.dbConn.connection) {
             if (!cb) {
                 return ("Invalid Connection");
             } else {
@@ -411,27 +316,20 @@ SQLServerTable2.prototype = {
         }
         //var cb = req.query['callback'];
         var retval = '';
-        connection.query(sqlstring, function (err, recordset) {
+        self.dbConn.query(sqlstring, function (err, recordset) {
             if (err) {
                 var n = String(err).indexOf("Error Establishing Connection");
                 var m = String(err).indexOf("Failed to connect");
                 var o = String(err).indexOf("Connection Lost");
-                logger.info("indexof m: " + m);
-                logger.info("indexof n: " + n);
-                logger.info("indexof n: " + o);
                 if (n > -1 || m > -1 || o > -1) {
-                    logger.error("Connection Error, retrying in 1.5 seconds");
-                    setTimeout(function(){connection.query(sqlstring, function (err, recordset){
+                    setTimeout(function(){self.dbConn.query(sqlstring, function (err, recordset){
                         if (err){
-                            logger.error("SQLServerTable2.query" + err);
                             return cb(err);
                         }else{
                             return cb(null, recordset);
                         }
                     });}, 2000);
                 } else {
-                    logger.error(sqlstring);                    
-                    logger.error("SQLServerTable2.query" + err);
                     return cb(err);
                 }
                 //return cb(err + "\n SQL Statement: " + sqlstring);
