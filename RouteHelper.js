@@ -1,6 +1,6 @@
 'use strict';
 
-var DBConnectionFactory = require('../db/DBConnectionFactory');
+var DBConnectionFactory = require('@nasirb/nbnodejsdb/DBConnectionFactory');
 
 var RouteHelper = function () {
 };
@@ -22,8 +22,22 @@ RouteHelper.prototype = {
     routeSuccess: function (result, res) {
         return res.status(200).send(result);
     },
-
-
+    sendAuthSuccess: function (res, message) {
+        res.status(200).send({
+            message: message
+        });
+    },
+    mergeObjects: function (obj1, obj2) {
+        var obj3 = {};
+        for (var attrname in obj1) {
+            obj3[attrname] = obj1[attrname];
+        }
+        for (var attrname in obj2) {
+            obj3[attrname] = obj2[attrname];
+        }
+        return obj3;
+    },
+    
     getDBDateTimeString: function (dt) {
         return dt.getFullYear() + "/" + (dt.getMonth() + 1) + "/" + dt.getDate() + " " + dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
     },
