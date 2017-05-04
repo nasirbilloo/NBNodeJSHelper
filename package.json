@@ -1,0 +1,32 @@
+{
+  "name": "@nasirb/nbnodejshelper",
+  "version": "0.2.0",
+  "description": "Node JS Helper classes for Nasir",
+  "main": "index.js",
+  "scripts": {
+    "test": "printMsg"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nasirbilloo/NBNodeJSHelper.git"
+  },
+  "keywords": [
+    "Nasir",
+    "Billoo",
+    "Nasir Billoo"
+  ],
+  "author": "Nasir Billoo <nasir.billoo@gmail.com>",
+  "bugs": {
+    "url": "https://github.com/nasirbilloo/NBNodeJSHelper/issues"
+  },
+  "homepage": "https://github.com/nasirbilloo/NBNodeJSHelper#readme",
+  "dependencies": {
+    "express": "*",
+    "async": "*",
+    "mongoose": "*",
+    "jwt-simple": "*",
+    "body-parser": "*",
+    "@nasirb/nbnodejsdb": "*"
+  },
+  "license": "ISC"
+}
