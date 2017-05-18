@@ -9,14 +9,15 @@ var LoggerFactory = function (loggerConfig) {
 LoggerFactory.prototype = {
     setLoggerConfig: function (loggerConfig) {
         this.loggerConfig = loggerConfig;
+        this.initLogger();
     },
     getLogger: function(){
-        return self.logger;
+        return this.logger;
     },
     initLogger: function () {
         var self = this;
-        self.logger = new winston.Logger({
-            level: self.loggerConfig.level,
+        this.logger = new winston.Logger({
+            level: self.loggerConfig && self.loggerConfig.level ? self.loggerConfig.level : 'info',
             transports: [
                 new (winston.transports.Console)({
                     timestamp: function () {
@@ -30,7 +31,7 @@ LoggerFactory.prototype = {
                     }
                 }),
                 new (winston.transports.File)({
-                    filename: self.loggerConfig.filename,
+                    filename: self.loggerConfig && self.loggerConfig.filename ? self.loggerConfig.filename : "logger.log",
                     timestamp: function () {
                         return Date.now();
                     },
@@ -47,7 +48,7 @@ LoggerFactory.prototype = {
 };
 
 
-loggerFactory = new LoggerFactory();
-loggerFactory.initLogger();
+var loggerFactory = new LoggerFactory();
+//loggerFactory.initLogger();
 
 module.exports = loggerFactory;

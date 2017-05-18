@@ -13,7 +13,7 @@ RouteHelper.prototype = {
         });
     },
 
-    authError: function (message, res) {
+    authError: function (res, message) {
         res.status(403).send({
             message: message
         });
@@ -44,6 +44,22 @@ RouteHelper.prototype = {
     getDBDateString: function (dt) {
         return dt.getFullYear() + "/" + (dt.getMonth() + 1) + "/" + dt.getDate();
     },
+    getDBDateStringSt: function (dt) {
+        var y = dt.getFullYear();
+        var m = dt.getMonth() < 9 ? "0" + (dt.getMonth() + 1) : (dt.getMonth() + 1);
+        var d = dt.getDate() < 9 ? "0" + dt.getDate() : dt.getDate();
+        return "{ts '" + y + "-" 
+        + m  + "-" 
+        + d + " 00:00:00'}";
+    },
+    getDBDateStringEn: function (dt) {
+        var y = dt.getFullYear();
+        var m = dt.getMonth() < 9 ? ("0" + (dt.getMonth() + 1)) : ((dt.getMonth() + 1));
+        var d = dt.getDate() < 9 ? ("0" + dt.getDate()) : (dt.getDate());
+        return "{ts '" + y + "-" 
+        + m  + "-" 
+        + d + " 23:59:59'}";
+    },       
     processQuery: function (strSQL, req, res) {
         var self = this;
 
@@ -108,9 +124,7 @@ RouteHelper.prototype = {
         return ret;
     },
     getBooleanVar: function (varName, req) {
-        //console.dir(req.query);
         var data = req.query[varName];
-        console.log(data);
         if (typeof data != 'undefined') {
             if (data === "true") {
                 data = true;
@@ -182,5 +196,5 @@ module.exports.getStringVar = getStringVar;
 
 //module.exports.getAuthorizedUser = getAuthorizedUser;
 */
-routeHelper = new RouteHelper();
+var routeHelper = new RouteHelper();
 module.exports = routeHelper;

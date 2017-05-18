@@ -26,6 +26,7 @@
     "mongoose": "*",
     "jwt-simple": "*",
     "body-parser": "*",
+    "winston": "*",    
     "@nasirb/nbnodejsdb": "*"
   },
   "license": "ISC"

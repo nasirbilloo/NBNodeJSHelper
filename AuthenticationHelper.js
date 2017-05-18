@@ -3,21 +3,20 @@
 var jwt = require('jwt-simple');
 var DBConnectionFactory = require('@nasirb/nbnodejsdb/DBConnectionFactory');
 
-var Authenticationelper = function (authObj) {
-    this.authObj = authObj;
-    this.logger = require('LoggerFactory').getLogger();
-    this.routeHelper = require('RouteFactory').routeHelper;
+var Authenticationelper = function (authConfig) {
+    this.authConfig = authConfig;
+    this.routeHelper = require('./RouteHelper');
 }
 Authenticationelper.prototype = {
-    setAuthObj: function (authObj) {
-        this.authObj = authObj;
+    setAuthConfig: function (authConfig) {
+        this.authConfig = authConfig;
     },
     isAuthenticated: function (req, res) {
         if (!req.headers.authorization) {
             return false;
         }
         var token = req.headers.authorization.split(' ')[1];
-        var payload = jwt.decode(token, this.authObj.JWTSecret);
+        var payload = jwt.decode(token, this.authConfig.JWTSecret);
 
         if (!payload) {
             return false;
@@ -92,7 +91,6 @@ Authenticationelper.prototype = {
             issueQuery.query(strSQL, function (err, results) {
                 dbConn.release();
                 if (err) {
-                    logger.error(err);
                     return cb(err);
                 } else {
                     if (!results || results.length < 0) {
@@ -127,11 +125,11 @@ Authenticationelper.prototype = {
             sub: user,
             exp: exp.getTime()
         }
-        return jwt.encode(payload, self.authObj.JWTSecret);
+        return jwt.encode(payload, self.setAuthConfig.JWTSecret);
     }
 };
 
 
-authHelper = new Authenticationelper();
+var authHelper = new Authenticationelper();
 
 module.exports = authHelper;

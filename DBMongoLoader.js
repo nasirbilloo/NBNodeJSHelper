@@ -3,8 +3,8 @@ var async = require('async');
 var mongoose = require('mongoose');
 
 var SQLLoader = function () {
-    this.logger = require('LoggerFactory').getLogger();
-    this.routeHelper = require('RouteFactory').routeHelper;
+    this.logger = require('./LoggerFactory').getLogger();
+    this.routeHelper = require('./RouteHelper');
     this.MyVars = require('@nasirb/nbnodejsdb/DBConnectionFactory').getConnectionParameters();
 };
 

@@ -3,8 +3,8 @@ var async = require('async');
 
 var SQLLoader = function () {
     //this.jiraSQLConverter = new JiraSQLConverter();
-    this.logger = require('LoggerFactory').getLogger();
-    this.routeHelper = require('RouteFactory').routeHelper;
+    this.logger = require('./LoggerFactory').getLogger();
+    this.routeHelper = require('./RouteHelper');
     this.MyVars = require('@nasirb/nbnodejsdb/DBConnectionFactory').getConnectionParameters();
     this.SQLConverter = require('@nasirb/nbnodejsdb/DBConnectionFactory').getSQLConverter();
 };
@@ -42,6 +42,9 @@ SQLLoader.prototype = {
 
     loadItemToSQL: function (MySQLModel, item, cb) {
         var self = this;
+        if (!MySQLModel){
+            return cb("DBSQLLoader Error: Invalid Model");
+        }
         if (self.SQLConverter) {
             self.SQLConverter.convertItem(MySQLModel, item, function (err, data) {
                 MySQLModel.insertOrUpdate(data, function (err1) {

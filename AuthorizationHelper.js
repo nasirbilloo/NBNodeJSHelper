@@ -3,15 +3,14 @@
 var jwt = require('jwt-simple');
 var DBConnectionFactory = require('@nasirb/nbnodejsdb/DBConnectionFactory');
 
-var AuthorizationHelper = function (authObj) {
-    this.authObj = authObj;
-    this.logger = require('LoggerFactory').getLogger();
-    this.routeHelper = require('RouteFactory').routeHelper;
-    this.authenticationHelper = require('AuthenticationHelper');
+var AuthorizationHelper = function (authConfig) {
+    this.authConfig = authConfig;
+    this.routeHelper = require('./RouteHelper');
+    this.authenticationHelper = require('./AuthenticationHelper');
 }
 AuthorizationHelper.prototype = {
-    setAuthObj: function (authObj) {
-        this.authObj = authObj;
+    setAuthConfig: function (authConfig) {
+        this.authConfig = authConfig;
     },
 
     isValidUser: function (req, res) {
@@ -24,18 +23,11 @@ AuthorizationHelper.prototype = {
     },
     getUser: function (username, cb) {
         var strSQL = "select * from people where id='" + username + "'";
-        DBConnectionFactory.getSQLQuery(function (err, issueQuery) {
-            issueQuery.query(strSQL, function (err, results) {
-                if (err) {
-                    self.logger.error(err);
-                    return cb(err);
-                } else {
-                    if (!results || results.length < 0) {
-                        return cb(null, "No Data Found");
-                    }
-                    return cb(null, results[0]);
+        self.RouteHelper.getQuery(strSQL, function (err, issueQuery) {
+                if (!results || results.length < 0) {
+                    return cb(null, "No Data Found");
                 }
-            });
+                return cb(null, results[0]);
         });
     },
     getPermissions: function (req, res) {
@@ -67,21 +59,7 @@ AuthorizationHelper.prototype = {
         where email='" + email + "'         \
         and user.user_access = view_permission.access_role_id \
         and view_permission.view_id = title_view.id" ;
-
-        DBConnectionFactory.getSQLQuery(function (err, issueQuery) {
-            issueQuery.query(strSQL, function (err, results) {
-                if (err) {
-                    self.logger.error(err);
-                    return cb(err);
-                } else {
-                    if (!results || results.length < 0) {
-                        return cb(null, null);
-                    }
-                    //processPermissions(email, results, cb)
-                    return cb(null, results);
-                }
-            });
-        });
+        self.routeHelper.getQuery(strSQL, cb);
     },
     isUserPermitted: function (email, strFxn, cb) {
         var self = this;
@@ -92,18 +70,11 @@ AuthorizationHelper.prototype = {
         and user.user_access = view_permission.access_role_id \
         and view_permission.view_id = title_view.id \
         and title_view.name='" + strFxn + "' ";
-        DBConnectionFactory.getSQLQuery(function (err, issueQuery) {
-            issueQuery.query(strSQL, function (err, results) {
-                if (err) {
-                    self.logger.error(err);
-                    return cb(err);
-                } else {
-                    if (!results || results.length < 0) {
-                        return cb(null, false);
-                    }
-                    return cb(null, true ? results[0].count > 0 : false);
+        self.routeHelper.getQuery(strSQL,function (err, issueQuery) {
+                if (!results || results.length < 0) {
+                    return cb(null, false);
                 }
-            });
+                return cb(null, true ? results[0].count > 0 : false);
         });
     },
 /*    
@@ -189,6 +160,6 @@ AuthorizationHelper.prototype = {
 };
 
 
-authHelper = new AuthorizationHelper();
+var authHelper = new AuthorizationHelper();
 
 module.exports = authHelper;
