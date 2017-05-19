@@ -19,10 +19,10 @@ SQLLoader.prototype = {
         async.eachSeries(items,
             function (item, callback) {
                 count++;
-                self.logger.debug("Updating " + MySQLModel.strTable + ": " + count + " of " + len);
+                self.logger.debug("Updating " + MySQLModel.tableName + ": " + count + " of " + len);
                 self.loadItemToSQL(MySQLModel, item, function (err, result) {
                     if (err) {
-                        self.logger.error(MySQLModel.strTable + " - Error in loadItemsToSQL: " + err);
+                        self.logger.error(MySQLModel.tableName + " - Error in loadItemsToSQL: " + err);
                         return callback(err);
                     }
                     setTimeout(callback, self.MyVars.sqlQueryTimeout);
@@ -30,7 +30,7 @@ SQLLoader.prototype = {
             },
             function (err) {
                 if (err) {
-                    self.logger.error(MySQLModel.strTable + " - Error in loadItemsToSQL: " + err);
+                    self.logger.error(MySQLModel.tableName + " - Error in loadItemsToSQL: " + err);
                     return cb(err);
                 } else {
                     return cb(null, "done");
@@ -49,7 +49,7 @@ SQLLoader.prototype = {
             self.SQLConverter.convertItem(MySQLModel, item, function (err, data) {
                 MySQLModel.insertOrUpdate(data, function (err1) {
                     if (err1) {
-                        self.logger.error(MySQLModel.strTable + " - Error in loadItemToSQL: " + err1);
+                        self.logger.error(MySQLModel.tableName + " - Error in loadItemToSQL: " + err1);
                         return cb(err1);
                     } else {
                         return cb(null);
@@ -59,7 +59,7 @@ SQLLoader.prototype = {
         } else {
             MySQLModel.insertOrUpdate(item, function (err1) {
                 if (err1) {
-                    self.logger.error(MySQLModel.strTable + " - Error in loadItemToSQL: " + err1);
+                    self.logger.error(MySQLModel.tableName + " - Error in loadItemToSQL: " + err1);
                     return cb(err1);
                 } else {
                     return cb(null);
@@ -76,7 +76,7 @@ SQLLoader.prototype = {
         async.eachSeries(items,
             function (item, callback) {
                 count++;
-                self.logger.debug("Updating " + MySQLModel.strTable + ": " + count + " of " + len);
+                self.logger.debug("Updating " + MySQLModel.tableName + ": " + count + " of " + len);
                 self.loadItemToSQL1(obj, MySQLModel, item, function (err, result) {
                     if (err) {
                         return callback(err);
@@ -86,7 +86,7 @@ SQLLoader.prototype = {
             },
             function (err) {
                 if (err) {
-                    self.logger.error(MySQLModel.strTable + " - Error in loadItemsToSQL: " + err);
+                    self.logger.error(MySQLModel.tableName + " - Error in loadItemsToSQL: " + err);
                     return cb(err);
                 } else {
                     return cb(null, "done");

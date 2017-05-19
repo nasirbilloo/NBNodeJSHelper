@@ -39,23 +39,27 @@ RouteHelper.prototype = {
     },
     
     getDBDateTimeString: function (dt) {
-        return dt.getFullYear() + "/" + (dt.getMonth() + 1) + "/" + dt.getDate() + " " + dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+        var dtTemp = new Date(dt)
+        return dtTemp.getFullYear() + "/" + (dtTemp.getMonth() + 1) + "/" + dtTemp.getDate() + " " + dtTemp.getHours() + ":" + dtTemp.getMinutes() + ":" + dtTemp.getSeconds();
     },
     getDBDateString: function (dt) {
-        return dt.getFullYear() + "/" + (dt.getMonth() + 1) + "/" + dt.getDate();
+        var dtTemp = new Date(dt)        
+        return dtTemp.getFullYear() + "/" + (dtTemp.getMonth() + 1) + "/" + dtTemp.getDate();
     },
     getDBDateStringSt: function (dt) {
-        var y = dt.getFullYear();
-        var m = dt.getMonth() < 9 ? "0" + (dt.getMonth() + 1) : (dt.getMonth() + 1);
-        var d = dt.getDate() < 9 ? "0" + dt.getDate() : dt.getDate();
+        var dtTemp = new Date(dt)        
+        var y = dtTemp.getFullYear();
+        var m = dtTemp.getMonth() < 9 ? "0" + (dtTemp.getMonth() + 1) : (dtTemp.getMonth() + 1);
+        var d = dtTemp.getDate() < 9 ? "0" + dtTemp.getDate() : dtTemp.getDate();
         return "{ts '" + y + "-" 
         + m  + "-" 
         + d + " 00:00:00'}";
     },
     getDBDateStringEn: function (dt) {
-        var y = dt.getFullYear();
-        var m = dt.getMonth() < 9 ? ("0" + (dt.getMonth() + 1)) : ((dt.getMonth() + 1));
-        var d = dt.getDate() < 9 ? ("0" + dt.getDate()) : (dt.getDate());
+        var dtTemp = new Date(dt)        
+        var y = dtTemp.getFullYear();
+        var m = dtTemp.getMonth() < 9 ? ("0" + (dtTempdt.getMonth() + 1)) : ((dtTemp.getMonth() + 1));
+        var d = dtTemp.getDate() < 9 ? ("0" + dtTemp.getDate()) : (dtTemp.getDate());
         return "{ts '" + y + "-" 
         + m  + "-" 
         + d + " 23:59:59'}";
@@ -176,25 +180,40 @@ RouteHelper.prototype = {
         }
         return endDate;
     },
+    sequalizeString: function (val) {
+        val = this.replaceAll("'", "`", val);
+        /*
+        val = val.replace(/[\0\n\r\b\t\\'"\x1a]/g, function (s) {
+            switch (s) {
+            case "\0":
+                return "\\0";
+            case "\n":
+                return "\\n";
+            case "\r":
+                return "\\r";
+            case "\b":
+                return "\\b";
+            case "\t":
+                return "\\t";
+            case "\x1a":
+                return "\\Z";
+            case "'":
+                return "''";
+            case '"':
+                return '""';
+            default:
+                return "\\" + s;
+            }
+        });
+        */
+        return val;
+    },
+    sequalizeAndTrim: function (val, n) {
+        if (!n)
+            n = 100;
+        return val && typeof val === "string" ? this.sequalizeString(val).substring(0, n) : null;
+    },        
 }
-/*
-module.exports.routeError = routeError;
-module.exports.authError = authError;
-module.exports.routeSuccess = routeSuccess;
-module.exports.getDBDateTimeString = getDBDateTimeString;
-module.exports.getDBDateString = getDBDateString;
-module.exports.processQuery = processQuery;
-module.exports.replaceAll = replaceAll;
-module.exports.isAuthenticated = isAuthenticated;
-module.exports.getStartDate = getStartDate;
-module.exports.getEndDate = getEndDate;
-module.exports.getBooleanVar = getBooleanVar;
-module.exports.getIntVar = getIntVar;
-module.exports.getDateVar = getDateVar;
-module.exports.getStringVar = getStringVar;
 
-
-//module.exports.getAuthorizedUser = getAuthorizedUser;
-*/
 var routeHelper = new RouteHelper();
 module.exports = routeHelper;
