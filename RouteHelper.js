@@ -13,7 +13,7 @@ RouteHelper.prototype = {
         });
     },
 
-    authError: function (res, message) {
+    sendAuthError: function (res, message) {
         res.status(403).send({
             message: message
         });
@@ -37,48 +37,42 @@ RouteHelper.prototype = {
         }
         return obj3;
     },
-    
+
     getDBDateTimeString: function (dt) {
         var dtTemp = new Date(dt)
         return dtTemp.getFullYear() + "/" + (dtTemp.getMonth() + 1) + "/" + dtTemp.getDate() + " " + dtTemp.getHours() + ":" + dtTemp.getMinutes() + ":" + dtTemp.getSeconds();
     },
     getDBDateString: function (dt) {
-        var dtTemp = new Date(dt)        
+        var dtTemp = new Date(dt)
         return dtTemp.getFullYear() + "/" + (dtTemp.getMonth() + 1) + "/" + dtTemp.getDate();
     },
     getDBDateStringSt: function (dt) {
-        var dtTemp = new Date(dt)        
+        var dtTemp = new Date(dt)
         var y = dtTemp.getFullYear();
         var m = dtTemp.getMonth() < 9 ? "0" + (dtTemp.getMonth() + 1) : (dtTemp.getMonth() + 1);
         var d = dtTemp.getDate() < 9 ? "0" + dtTemp.getDate() : dtTemp.getDate();
-        return "{ts '" + y + "-" 
-        + m  + "-" 
-        + d + " 00:00:00'}";
+        return "{ts '" + y + "-"
+            + m + "-"
+            + d + " 00:00:00'}";
     },
     getDBDateStringEn: function (dt) {
-        var dtTemp = new Date(dt)        
+        var dtTemp = new Date(dt)
         var y = dtTemp.getFullYear();
         var m = dtTemp.getMonth() < 9 ? ("0" + (dtTempdt.getMonth() + 1)) : ((dtTemp.getMonth() + 1));
         var d = dtTemp.getDate() < 9 ? ("0" + dtTemp.getDate()) : (dtTemp.getDate());
-        return "{ts '" + y + "-" 
-        + m  + "-" 
-        + d + " 23:59:59'}";
-    },       
+        return "{ts '" + y + "-"
+            + m + "-"
+            + d + " 23:59:59'}";
+    },
     processQuery: function (strSQL, req, res) {
         var self = this;
 
-        DBConnectionFactory.getSQLQuery(function (err, issueQuery) {
+        DBConnectionFactory.executeSQLQuery(strSQL, function (err, results) {
             if (err) {
                 return self.routeError(err, res);
+            } else {
+                return self.routeSuccess(results, res);
             }
-            issueQuery.query(strSQL, function (err, results) {
-                dbConn.release();
-                if (err) {
-                    return self.routeError(err, res);
-                } else {
-                    return self.routeSuccess(results, res);
-                }
-            });
         });
     },
     getQuery: function (strSQL, cb) {
@@ -106,9 +100,9 @@ RouteHelper.prototype = {
     isValidDate: function (dt) {
         return dt instanceof Date && !isNaN(dt.valueOf());
     },
-    dateAddDays: function(dt, days){
+    dateAddDays: function (dt, days) {
         var dtTemp = new Date(dt);
-        return new Date(dtTemp.setTime(dtTemp.getTime() + days * 86400000 ));
+        return new Date(dtTemp.setTime(dtTemp.getTime() + days * 86400000));
     },
     getStringVar: function (varName, req) {
         var data = req.query[varName];
@@ -117,10 +111,10 @@ RouteHelper.prototype = {
         }
         return data;
     },
-    getDBArraySting: function(arr){
+    getDBArraySting: function (arr) {
         var ret = "";
-        for (var x=0; x<arr.length; x++){
-            if (x >0){
+        for (var x = 0; x < arr.length; x++) {
+            if (x > 0) {
                 ret += ",";
             }
             ret += "'" + arr[x] + "'";
@@ -212,7 +206,7 @@ RouteHelper.prototype = {
         if (!n)
             n = 100;
         return val && typeof val === "string" ? this.sequalizeString(val).substring(0, n) : null;
-    },        
+    },
 }
 
 var routeHelper = new RouteHelper();

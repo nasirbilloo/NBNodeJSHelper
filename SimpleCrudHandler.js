@@ -9,12 +9,10 @@ var urlencodedParser = bodyParser.urlencoded({
     extended: false
 });
 
-var RouteFactory = require('./RouteFactory');
-var routeHelper = RouteFactory.RouteHelper;
 
 var SimpleCrudHandler = function(model) {
     this.RouteModel = model;
-    this.routeHelper = RouteFactory.routeHelper;
+    this.routeHelper = require('./RouteHelper');
 };
 
 

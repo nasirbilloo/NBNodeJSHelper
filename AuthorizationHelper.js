@@ -54,22 +54,22 @@ AuthorizationHelper.prototype = {
     getUserPermissions: function (email, cb) {
         var self = this;
 
-        var strSQL = "select title_view.name as view, true as permission\
-        from user, view_permission, title_view         \
+        var strSQL = "select app_view.name as view, true as permission\
+        from user, view_permission, app_view         \
         where email='" + email + "'         \
         and user.user_access = view_permission.access_role_id \
-        and view_permission.view_id = title_view.id" ;
+        and view_permission.view_id = app_view.id" ;
         self.routeHelper.getQuery(strSQL, cb);
     },
     isUserPermitted: function (email, strFxn, cb) {
         var self = this;
 
         var strSQL = "select count(view_permission.view_id) as count \
-        from user, view_permission, title_view \
+        from user, view_permission, app_view \
         where email='" + email + "' \
         and user.user_access = view_permission.access_role_id \
-        and view_permission.view_id = title_view.id \
-        and title_view.name='" + strFxn + "' ";
+        and view_permission.view_id = app_view.id \
+        and app_view.name='" + strFxn + "' ";
         self.routeHelper.getQuery(strSQL,function (err, issueQuery) {
                 if (!results || results.length < 0) {
                     return cb(null, false);
