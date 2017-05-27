@@ -58,7 +58,7 @@ RouteHelper.prototype = {
     getDBDateStringEn: function (dt) {
         var dtTemp = new Date(dt)
         var y = dtTemp.getFullYear();
-        var m = dtTemp.getMonth() < 9 ? ("0" + (dtTempdt.getMonth() + 1)) : ((dtTemp.getMonth() + 1));
+        var m = dtTemp.getMonth() < 9 ? ("0" + (dtTemp.getMonth() + 1)) : ((dtTemp.getMonth() + 1));
         var d = dtTemp.getDate() < 9 ? ("0" + dtTemp.getDate()) : (dtTemp.getDate());
         return "{ts '" + y + "-"
             + m + "-"

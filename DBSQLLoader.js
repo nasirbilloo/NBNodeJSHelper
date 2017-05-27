@@ -7,11 +7,13 @@ var SQLLoader = function () {
     this.routeHelper = require('./RouteHelper');
     this.MyVars = require('@nasirb/nbnodejsdb/DBConnectionFactory').getConnectionParameters();
     this.SQLConverter = require('@nasirb/nbnodejsdb/DBConnectionFactory').getSQLConverter();
+    this.debug = false;
 };
 
 
 SQLLoader.prototype = {
     loadItemsToSQL: function (MySQLModel, items, cb) {
+        if (this.debug) console.log("In SQLLoader: loadItemsToSQL");
         var self = this;
         var len = items.length;
         var count = 0;
@@ -41,6 +43,7 @@ SQLLoader.prototype = {
 
 
     loadItemToSQL: function (MySQLModel, item, cb) {
+        if (this.debug) console.log("In SQLLoader: loadItemToSQL");        
         var self = this;
         if (!MySQLModel){
             return cb("DBSQLLoader Error: Invalid Model");
@@ -69,6 +72,7 @@ SQLLoader.prototype = {
     },
 
     loadItemsToSQL1: function (obj, MySQLModel, items, cb) {
+        if (this.debug) console.log("In SQLLoader: loadItemsToSQL1");
         var self = this;
         var count = 0;
         var len = items.length;
@@ -95,6 +99,7 @@ SQLLoader.prototype = {
         );
     },
     loadItemToSQL1: function (obj, MySQLModel, item, cb) {
+        if (this.debug) console.log("In SQLLoader: loadItemToSQL1");        
         var self = this;
         item = self.routeHelper.mergeObjects(item, obj);
         if (self.SQLConverter) {
