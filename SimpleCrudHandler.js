@@ -46,7 +46,7 @@ SimpleCrudHandler.prototype = {
         self.RouteModel.insertOrUpdate(data, function(err, results) {
             if (err) {
                 console.log(err);
-                return self.routeHelper.routeError("Error in insert statement, unable to insert", response);
+                return self.routeHelper.routeError("Error in insert statement, unable to insert\n" + err, response);
             } else {
                 return self.routeHelper.routeSuccess(results, response);
             }
