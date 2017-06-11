@@ -77,6 +77,32 @@ AuthorizationHelper.prototype = {
                 return cb(null, true ? results[0].count > 0 : false);
         });
     },
+    getUserProfile: function (req, cb) {
+        var self = this;
+        self.authenticationHelper.getEmailFromToken(req, null, function (err, email) {
+            if (err) {
+                return cb("Invalid Email");
+            }else{
+                return self.getUserProfileByEmail(email, cb);
+            }
+        });
+    },
+    getUserProfileByEmail(email, cb) {
+        var self = this;
+        var strSQL = "select user.id, concat(user.first_name, ' ', user.last_name) as name, email, access_role.name as access_role \
+        from user, access_role \
+        where user.user_access = access_role.id \
+        and email = '" + email + "' ";
+        self.routeHelper.getQuery(strSQL, function (err, result) {
+            if (err) {
+                cb(err);
+            } else {
+                if (result && result.length > 0) {
+                    cb(null, result[0]);
+                }
+            }
+        });
+    },    
 /*    
     isBuying: function (email, cb) {
         var strSQL = "select count(*) as count\
