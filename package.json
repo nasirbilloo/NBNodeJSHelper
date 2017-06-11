@@ -1,6 +1,6 @@
 {
   "name": "@nasirb/nbnodejshelper",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "Node JS Helper classes for Nasir",
   "main": "index.js",
   "scripts": {
