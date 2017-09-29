@@ -10,16 +10,16 @@ var urlencodedParser = bodyParser.urlencoded({
 });
 
 
-var SimpleCrudHandler = function(model) {
+var SimpleCrudHandler = function (model) {
     this.RouteModel = model;
     this.routeHelper = require('./RouteHelper');
 };
 
 
 SimpleCrudHandler.prototype = {
-    get: function(request, response) {
+    get: function (request, response) {
         var self = this;
-        self.RouteModel.getAll(function(err, results) {
+        self.RouteModel.getAll(function (err, results) {
             if (err) {
                 console.log(err);
                 return self.routeHelper.routeError(err, response);
@@ -28,10 +28,10 @@ SimpleCrudHandler.prototype = {
             }
         });
     },
-    getWithID: function(itemIDName, request, response){
+    getWithID: function (itemIDName, request, response) {
         var self = this;
         var itemID = request.params[itemIDName];
-        self.RouteModel.getWithID(itemID, itemIDName, function(err, results) {
+        self.RouteModel.getWithID(itemID, itemIDName, function (err, results) {
             if (err) {
                 console.log(err);
                 return self.routeHelper.routeError(err, response);
@@ -40,22 +40,38 @@ SimpleCrudHandler.prototype = {
             }
         });
     },
-    post: function(request, response) {
+    post: function (request, response) {
         var self = this;
         var data = request.body;
-        self.RouteModel.insertOrUpdate(data, function(err, results) {
-            if (err) {
-                console.log(err);
-                return self.routeHelper.routeError("Error in insert statement, unable to insert\n" + err, response);
+
+        self.Table.exists(data, function (err, existingData) {
+            //console.log("insertOrUpdate");
+            if (err) { //Error in exists query
+                return self.routeHelper.routeError("Error in db query statement\n" + err, response);
             } else {
-                return self.routeHelper.routeSuccess(results, response);
+                if (!existingData || existingData.length < 1) { //Doesn't Existt, New
+                    return self.insert(data, function (err, result) {
+                        if (err) {
+                            return self.routeHelper.routeError("Error in insert statement, unable to insert\n" + err, response);
+                        }
+                        return self.routeHelper.routeSuccess(result, response)
+                    });
+
+                } else { //Exists / Modify
+                    return self.update(data, function (err, result) {
+                        if (err) {
+                            return self.routeHelper.routeError("Error in update statement, unable to update\n" + err, response);
+                        }
+                        return self.routeHelper.routeSuccess(result, response)
+                    });
+                }
             }
         });
     },
-    put: function(request, response) {
+    put: function (request, response) {
         var self = this;
         var data = request.body;
-        self.RouteModel.removeSimple(data, function(err, results) {
+        self.RouteModel.removeSimple(data, function (err, results) {
             if (err) {
                 console.error(err);
                 return self.routeHelper.routeError(err, response);

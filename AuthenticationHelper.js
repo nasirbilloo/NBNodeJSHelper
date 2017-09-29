@@ -11,6 +11,9 @@ Authenticationelper.prototype = {
     setAuthConfig: function (authConfig) {
         this.authConfig = authConfig;
     },
+    whoAmI: function(){
+
+    },
     isAuthenticated: function (req, res) {
         if (!req.headers.authorization) {
             return false;
