@@ -44,13 +44,13 @@ SimpleCrudHandler.prototype = {
         var self = this;
         var data = request.body;
 
-        self.Table.exists(data, function (err, existingData) {
+        self.RouteModel.exists(data, function (err, existingData) {
             //console.log("insertOrUpdate");
             if (err) { //Error in exists query
                 return self.routeHelper.routeError("Error in db query statement\n" + err, response);
             } else {
                 if (!existingData || existingData.length < 1) { //Doesn't Existt, New
-                    return self.insert(data, function (err, result) {
+                    return self.RouteModel.insert(data, function (err, result) {
                         if (err) {
                             return self.routeHelper.routeError("Error in insert statement, unable to insert\n" + err, response);
                         }
@@ -58,7 +58,7 @@ SimpleCrudHandler.prototype = {
                     });
 
                 } else { //Exists / Modify
-                    return self.update(data, function (err, result) {
+                    return self.RouteModel.update(data, function (err, result) {
                         if (err) {
                             return self.routeHelper.routeError("Error in update statement, unable to update\n" + err, response);
                         }
