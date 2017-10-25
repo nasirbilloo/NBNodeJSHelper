@@ -54,7 +54,7 @@ RouteHelper.prototype = {
         var dtTemp = new Date(dt)
         var y = dtTemp.getFullYear();
         var m = dtTemp.getMonth() < 9 ? "0" + (dtTemp.getMonth() + 1) : (dtTemp.getMonth() + 1);
-        var d = dtTemp.getDate() < 9 ? "0" + dtTemp.getDate() : dtTemp.getDate();
+        var d = dtTemp.getDate() < 10 ? "0" + dtTemp.getDate() : dtTemp.getDate();
         return "{ts '" + y + "-"
             + m + "-"
             + d + " 00:00:00'}";
@@ -63,7 +63,7 @@ RouteHelper.prototype = {
         var dtTemp = new Date(dt)
         var y = dtTemp.getFullYear();
         var m = dtTemp.getMonth() < 9 ? ("0" + (dtTemp.getMonth() + 1)) : ((dtTemp.getMonth() + 1));
-        var d = dtTemp.getDate() < 9 ? ("0" + dtTemp.getDate()) : (dtTemp.getDate());
+        var d = dtTemp.getDate() < 10 ? ("0" + dtTemp.getDate()) : (dtTemp.getDate());
         return "{ts '" + y + "-"
             + m + "-"
             + d + " 23:59:59'}";
