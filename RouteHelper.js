@@ -44,8 +44,24 @@ RouteHelper.prototype = {
 
     getDBDateTimeString: function (dt) {
         var dtTemp = new Date(dt)
-        return dtTemp.getFullYear() + "/" + (dtTemp.getMonth() + 1) + "/" + dtTemp.getDate() + " " + dtTemp.getHours() + ":" + dtTemp.getMinutes() + ":" + dtTemp.getSeconds();
+        return dtTemp.getFullYear() + "/" 
+        + (dtTemp.getMonth() + 1) + "/" 
+        + dtTemp.getDate() + " " 
+        + dtTemp.getHours() + ":" 
+        + dtTemp.getMinutes() + ":" 
+        + dtTemp.getSeconds();
     },
+    getLocalDBDateTimeString: function (dt) {
+        var dtTemp = new Date(dt);
+        var tzOffset = dtTemp.getTimezoneOffset() * 60 * 1000;
+        dtTemp = new Date(dtTemp.setTime(dtTemp.getTime() + tzOffset));
+        return dtTemp.getFullYear() + "/" 
+        + (dtTemp.getMonth() + 1) + "/" 
+        + dtTemp.getDate() + " " 
+        + dtTemp.getHours() + ":" 
+        + dtTemp.getMinutes() + ":" 
+        + dtTemp.getSeconds();  
+    },    
     getDBDateString: function (dt) {
         var dtTemp = new Date(dt)
         return dtTemp.getFullYear() + "/" + (dtTemp.getMonth() + 1) + "/" + dtTemp.getDate();
@@ -68,6 +84,19 @@ RouteHelper.prototype = {
             + m + "-"
             + d + " 23:59:59'}";
     },
+    getUTCDBDateStringEn: function (dt) {
+        var dtTemp = new Date(dt)
+        dtTemp.setHours(23);
+        dtTemp.setMinutes(59);
+        dtTemp.setSeconds(59);
+
+        var y = dtTemp.getUTCFullYear();
+        var m = dtTemp.getUTCMonth() < 9 ? ("0" + (dtTemp.getUTCMonth() + 1)) : ((dtTemp.getUTCMonth() + 1));
+        var d = dtTemp.getUTCDate() < 10 ? ("0" + dtTemp.getUTCDate()) : (dtTemp.getUTCDate());
+        return "{ts '" + y + "-"
+            + m + "-"
+            + d + " 23:59:59'}";
+    },    
     processQuery: function (strSQL, req, res) {
         var self = this;
 
